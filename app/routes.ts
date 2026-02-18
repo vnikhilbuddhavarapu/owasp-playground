@@ -1,3 +1,26 @@
-import { type RouteConfig, index } from "@react-router/dev/routes";
+import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
-export default [index("routes/home.tsx")] satisfies RouteConfig;
+export default [
+  index("routes/_index.tsx"),
+  route("login", "routes/login.tsx"),
+  route("comments", "routes/comments.tsx"),
+  route("admin", "routes/admin.tsx"),
+  route("ping", "routes/ping.tsx"),
+  route("access-control", "routes/access-control.tsx"),
+  route("crypto", "routes/crypto.tsx"),
+  route("insecure-design", "routes/insecure-design.tsx"),
+  route("misconfig", "routes/misconfig.tsx"),
+  route("vulnerable-components", "routes/vulnerable-components.tsx"),
+  route("auth-failures", "routes/auth-failures.tsx"),
+  route("api/login", "routes/api.login.ts"),
+  route("api/comment", "routes/api.comment.ts"),
+  route("api/delete-user", "routes/api.delete-user.ts"),
+  route("api/settings", "routes/api.settings.ts"),
+  route("api/ping", "routes/api.ping.ts"),
+  route("api/access-control", "routes/api.access-control.ts"),
+  route("api/crypto", "routes/api.crypto.ts"),
+  route("api/insecure-design", "routes/api.insecure-design.ts"),
+  route("api/misconfig", "routes/api.misconfig.ts"),
+  route("api/vulnerable-components", "routes/api.vulnerable-components.ts"),
+  route("api/auth-failures", "routes/api.auth-failures.ts"),
+] satisfies RouteConfig;
