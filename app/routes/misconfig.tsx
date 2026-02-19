@@ -1,9 +1,26 @@
 import { Bug, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
 import { CodeBlock } from "~/components/ui/code-block";
+import { Button } from "~/components/ui/button";
 import { Link } from "react-router";
+import { useState } from "react";
 
 export default function SecurityMisconfigPage() {
+  const [endpoint, setEndpoint] = useState("env");
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const endpoints = ["env", "debug", "config", "git"];
+
+  const fetchMisconfig = async (ep: string) => {
+    setLoading(true);
+    setEndpoint(ep);
+    const res = await fetch(`/api/misconfig?endpoint=${ep}`);
+    const json = await res.json();
+    setData(json);
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="border-b border-slate-800 bg-slate-900/50 px-4 py-4">
@@ -62,17 +79,35 @@ export default function SecurityMisconfigPage() {
           <CardContent className="space-y-4">
             <div>
               <h4 className="mb-2 font-medium text-slate-300">Step 1: Access Exposed Configuration</h4>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {endpoints.map((ep) => (
+                  <Button 
+                    key={ep}
+                    onClick={() => fetchMisconfig(ep)} 
+                    disabled={loading} 
+                    variant={endpoint === ep ? "destructive" : "outline"}
+                    size="sm"
+                  >
+                    {loading && endpoint === ep ? "Loading..." : `View ${ep}`}
+                  </Button>
+                ))}
+              </div>
+              {data && (
+                <div className="mt-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
+                  <pre className="text-xs text-rose-300 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
+                </div>
+              )}
               <CodeBlock code={`# View exposed .env secrets
-curl "<your-worker-url>/api/misconfig?endpoint=env"
+/api/misconfig?endpoint=env
 
 # View verbose debug info with stack traces
-curl "<your-worker-url>/api/misconfig?endpoint=debug"
+/api/misconfig?endpoint=debug
 
 # View insecure default config
-curl "<your-worker-url>/api/misconfig?endpoint=config"
+/api/misconfig?endpoint=config
 
 # View exposed git info
-curl "<your-worker-url>/api/misconfig?endpoint=git"`} />
+/api/misconfig?endpoint=git`} />
             </div>
             <div className="rounded-md bg-rose-500/10 p-3">
               <p className="text-sm text-rose-400">

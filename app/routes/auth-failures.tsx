@@ -1,9 +1,33 @@
-import { Fingerprint, AlertTriangle, Lock, ArrowLeft } from "lucide-react";
+import { Fingerprint, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
 import { CodeBlock } from "~/components/ui/code-block";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { Link } from "react-router";
+import { useState } from "react";
 
 export default function AuthFailuresPage() {
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("password123");
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const bruteForce = async () => {
+    setLoading(true);
+    const res = await fetch(`/api/auth-failures?action=brute-force&username=${username}&password=${password}`);
+    const json = await res.json();
+    setData(json);
+    setLoading(false);
+  };
+
+  const generateSession = async () => {
+    setLoading(true);
+    const res = await fetch("/api/auth-failures?action=session&user_id=1");
+    const json = await res.json();
+    setData(json);
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="border-b border-slate-800 bg-slate-900/50 px-4 py-4">
@@ -62,16 +86,39 @@ export default function AuthFailuresPage() {
           <CardContent className="space-y-4">
             <div>
               <h4 className="mb-2 font-medium text-slate-300">Step 1: Brute Force Attack</h4>
+              <div className="flex flex-wrap gap-2 mb-4 items-end">
+                <div className="flex gap-2">
+                  <Input 
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value)} 
+                    placeholder="Username"
+                    className="w-32"
+                  />
+                  <Input 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="Password"
+                    type="password"
+                    className="w-32"
+                  />
+                </div>
+                <Button onClick={bruteForce} disabled={loading} variant="destructive">
+                  {loading ? "Trying..." : "Attempt Brute Force"}
+                </Button>
+                <Button onClick={generateSession} disabled={loading} variant="destructive">
+                  {loading ? "Generating..." : "Generate Session"}
+                </Button>
+              </div>
+              {data && (
+                <div className="mt-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
+                  <pre className="text-xs text-rose-300 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
+                </div>
+              )}
               <CodeBlock code={`# Try unlimited login attempts - no rate limiting
-curl "<your-worker-url>/api/auth-failures?action=brute-force&username=admin&password=password123"
+/api/auth-failures?action=brute-force&username=admin&password=password123
 
 # View predictable session IDs
-curl "<your-worker-url>/api/auth-failures?action=session&user_id=1"
-
-# Post login with plaintext logging (vulnerable logging)
-curl -X POST "<your-worker-url>/api/auth-failures" \\
-  -H "Content-Type: application/json" \\
-  -d '{"username":"admin","password":"SuperSecret123!"}'`} />
+/api/auth-failures?action=session&user_id=1`} />
             </div>
             <div className="rounded-md bg-rose-500/10 p-3">
               <p className="text-sm text-rose-400">

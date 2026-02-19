@@ -84,7 +84,7 @@ curl "https://<your-worker-url>/api/ping?host=| ls -la"`;
                 <h4 className="mb-2 font-medium text-slate-300">Try Command Injection:</h4>
                 <fetcher.Form method="get" action="/api/ping" className="space-y-3">
                   <Input name="host" placeholder="; cat /etc/passwd" required />
-                  <button type="submit" disabled={isSubmitting} className="w-full rounded-md bg-cyan-500 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-600 disabled:opacity-50">
+                  <button type="submit" disabled={isSubmitting} className="w-full rounded-md bg-cyan-500 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-600 disabled:opacity-50 cursor-pointer">
                     {isSubmitting ? "Injecting..." : "Execute Command"}
                   </button>
                 </fetcher.Form>

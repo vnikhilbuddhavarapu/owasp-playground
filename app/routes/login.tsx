@@ -85,7 +85,7 @@ export default function LoginPage() {
                 <fetcher.Form method="post" action="/api/login" className="space-y-3">
                   <Input name="username" placeholder="admin'--" required />
                   <Input name="password" type="password" placeholder="anything" required />
-                  <button type="submit" disabled={isSubmitting} className="w-full rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-50">
+                  <button type="submit" disabled={isSubmitting} className="w-full rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-50 cursor-pointer">
                     {isSubmitting ? "Trying..." : "Login with Injection"}
                   </button>
                 </fetcher.Form>

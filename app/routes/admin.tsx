@@ -19,6 +19,10 @@ export default function AdminPage() {
   const deleteFetcher = useFetcher();
   const settingsFetcher = useFetcher();
 
+  // Get response data from fetchers
+  const deleteData = deleteFetcher.data;
+  const settingsData = settingsFetcher.data;
+
   const csrfCurlExample = `# Delete a user (no CSRF token required)
 curl -X POST "https://<your-worker-url>/api/delete-user" \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
@@ -95,13 +99,18 @@ curl -X POST "https://<your-worker-url>/api/settings" \\
                       <span className="text-sm text-slate-300">{user.username}</span>
                       <deleteFetcher.Form method="post" action="/api/delete-user">
                         <input type="hidden" name="userId" value={user.id} />
-                        <button type="submit" className="flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/20">
+                        <button type="submit" disabled={deleteFetcher.state !== "idle"} className="flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/20 cursor-pointer disabled:opacity-50">
                           <Trash2 className="h-3 w-3" />
-                          Delete (No Token)
+                          {deleteFetcher.state !== "idle" ? "Deleting..." : "Delete (No Token)"}
                         </button>
                       </deleteFetcher.Form>
                     </div>
                   ))}
+                  {deleteData && (
+                    <div className={`mt-2 rounded-md p-2 text-xs ${deleteData.success ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>
+                      {deleteData.message || deleteData.error}
+                    </div>
+                  )}
                 </div>
               </div>
               <div>
@@ -142,7 +151,7 @@ curl -X POST "<your-worker-url>/api/settings" \\
                     </div>
                     <deleteFetcher.Form method="post" action="/api/delete-user">
                       <input type="hidden" name="userId" value={user.id} />
-                      <button type="submit" className="flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/20">
+                      <button type="submit" className="flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-1 text-xs text-rose-400 hover:bg-rose-500/20 cursor-pointer">
                         <Trash2 className="h-3 w-3" />
                         Delete
                       </button>
@@ -169,12 +178,17 @@ curl -X POST "<your-worker-url>/api/settings" \\
                     <settingsFetcher.Form method="post" action="/api/settings">
                       <input type="hidden" name="key" value={setting.key} />
                       <input type="hidden" name="value" value={setting.value === "true" ? "false" : "true"} />
-                      <button type="submit" className="rounded-md bg-purple-500/10 px-2 py-1 text-xs text-purple-400 hover:bg-purple-500/20">
-                        Toggle
+                      <button type="submit" disabled={settingsFetcher.state !== "idle"} className="w-full rounded-md bg-cyan-500 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-600 cursor-pointer disabled:opacity-50">
+                        {settingsFetcher.state !== "idle" ? "Toggling..." : "Toggle"}
                       </button>
                     </settingsFetcher.Form>
                   </div>
                 ))}
+                {settingsData && (
+                  <div className={`mt-2 rounded-md p-2 text-xs ${settingsData.success ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>
+                    {settingsData.message || settingsData.error}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

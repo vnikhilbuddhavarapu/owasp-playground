@@ -96,7 +96,7 @@ export default function CommentsPage() {
                     required
                     className="flex w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
                   />
-                  <button type="submit" disabled={isSubmitting} className="w-full rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50">
+                  <button type="submit" disabled={isSubmitting} className="w-full rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50 cursor-pointer">
                     {isSubmitting ? "Posting..." : "Post XSS Payload"}
                   </button>
                 </fetcher.Form>

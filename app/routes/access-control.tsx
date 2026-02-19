@@ -1,9 +1,24 @@
 import { Eye, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
 import { CodeBlock } from "~/components/ui/code-block";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { Link } from "react-router";
+import { useState } from "react";
 
 export default function BrokenAccessControlPage() {
+  const [userId, setUserId] = useState("1");
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchUserData = async () => {
+    setLoading(true);
+    const res = await fetch(`/api/access-control?id=${userId}`);
+    const json = await res.json();
+    setData(json);
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="border-b border-slate-800 bg-slate-900/50 px-4 py-4">
@@ -61,10 +76,26 @@ export default function BrokenAccessControlPage() {
           <CardContent className="space-y-4">
             <div>
               <h4 className="mb-2 font-medium text-slate-300">Step 1: Access User Data Without Auth</h4>
+              <div className="flex gap-2 mb-4">
+                <Input 
+                  value={userId} 
+                  onChange={(e) => setUserId(e.target.value)} 
+                  placeholder="User ID (try 1, 2, 3...)"
+                  className="w-32"
+                />
+                <Button onClick={fetchUserData} disabled={loading} variant="destructive">
+                  {loading ? "Loading..." : "Access User Data"}
+                </Button>
+              </div>
+              {data && (
+                <div className="mt-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
+                  <pre className="text-xs text-rose-300 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
+                </div>
+              )}
               <CodeBlock code={`# Access any user's data by changing the ID parameter
-curl "<your-worker-url>/api/access-control?id=1"
-curl "<your-worker-url>/api/access-control?id=2" 
-curl "<your-worker-url>/api/access-control?id=3"
+/api/access-control?id=1
+/api/access-control?id=2
+/api/access-control?id=3
 
 # Response shows user's email, role, and other data
 # WITHOUT requiring authentication!`} />

@@ -1,9 +1,33 @@
 import { Key, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
 import { CodeBlock } from "~/components/ui/code-block";
-import { Link } from "react-router";
+import { Button } from "~/components/ui/button";
+import { Link, useFetcher } from "react-router";
+import { useState } from "react";
 
 export default function CryptoFailuresPage() {
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchExposedData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/crypto");
+      if (res.status === 403) {
+        setError("🔒 Cloudflare WAF blocked this request! The OWASP rule detected sensitive data exposure attempt.");
+        setData(null);
+      } else {
+        const json = await res.json();
+        setData(json);
+      }
+    } catch (e) {
+      setError("Network error - WAF may be blocking");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="border-b border-slate-800 bg-slate-900/50 px-4 py-4">
@@ -62,8 +86,21 @@ export default function CryptoFailuresPage() {
           <CardContent className="space-y-4">
             <div>
               <h4 className="mb-2 font-medium text-slate-300">Step 1: View Exposed Sensitive Data</h4>
+              <Button onClick={fetchExposedData} disabled={loading} variant="destructive" className="mb-4">
+                {loading ? "Loading..." : "View Exposed Data"}
+              </Button>
+              {error && (
+                <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3">
+                  <p className="text-sm text-emerald-300">{error}</p>
+                </div>
+              )}
+              {data && (
+                <div className="mt-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
+                  <pre className="text-xs text-rose-300 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
+                </div>
+              )}
               <CodeBlock code={`# API returns plaintext passwords and weak hashes
-curl "<your-worker-url>/api/crypto"
+"<your-worker-url>/api/crypto"
 
 # Response shows:
 # - Plaintext passwords

@@ -1,9 +1,42 @@
 import { ShieldAlert, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
 import { CodeBlock } from "~/components/ui/code-block";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { Link } from "react-router";
+import { useState } from "react";
 
 export default function InsecureDesignPage() {
+  const [orderId, setOrderId] = useState("12345");
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const confirmOrder = async (withPayment = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/insecure-design", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          order_id: orderId, 
+          payment_verified: withPayment 
+        })
+      });
+      if (res.status === 403) {
+        setError("🔒 Cloudflare WAF blocked this request! Suspicious workflow pattern detected.");
+        setData(null);
+      } else {
+        const json = await res.json();
+        setData(json);
+      }
+    } catch (e) {
+      setError("Network error - WAF may be blocking");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="border-b border-slate-800 bg-slate-900/50 px-4 py-4">
@@ -62,10 +95,33 @@ export default function InsecureDesignPage() {
           <CardContent className="space-y-4">
             <div>
               <h4 className="mb-2 font-medium text-slate-300">Step 1: Bypass Payment Workflow</h4>
+              <div className="flex flex-wrap gap-2 mb-4 items-end">
+                <Input 
+                  value={orderId} 
+                  onChange={(e) => setOrderId(e.target.value)} 
+                  placeholder="Order ID"
+                  className="w-32"
+                />
+                <Button onClick={() => confirmOrder(false)} disabled={loading} variant="destructive">
+                  {loading ? "Confirming..." : "Confirm Order (No Payment)"}
+                </Button>
+                <Button onClick={() => confirmOrder(true)} disabled={loading} variant="default">
+                  {loading ? "Confirming..." : "Confirm With Payment"}
+                </Button>
+              </div>
+              {error && (
+                <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3">
+                  <p className="text-sm text-emerald-300">{error}</p>
+                </div>
+              )}
+              {data && (
+                <div className={`mt-3 rounded-md border p-3 ${data.order?.payment_verified ? "border-emerald-500/30 bg-emerald-500/10" : "border-rose-500/30 bg-rose-500/10"}`}>
+                  <pre className={`text-xs overflow-auto ${data.order?.payment_verified ? "text-emerald-300" : "text-rose-300"}`}>{JSON.stringify(data, null, 2)}</pre>
+                </div>
+              )}
               <CodeBlock code={`# Confirm order WITHOUT payment verification
-curl -X POST "<your-worker-url>/api/insecure-design" \\
-  -H "Content-Type: application/json" \\
-  -d '{"order_id":"12345"}'
+POST /api/insecure-design
+{"order_id": "12345"}
 
 # Response shows order confirmed even though payment was never verified!`} />
             </div>

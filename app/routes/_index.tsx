@@ -128,9 +128,12 @@ export default function IndexPage() {
             <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <svg className="h-8 w-8" viewBox="0 0 32 32" fill="none">
                 <rect width="32" height="32" rx="8" fill="#0f172a"/>
-                <path d="M16 6L8 9v6c0 5 3 9 8 11 5-2 8-6 8-11V9L16 6z" stroke="#06b6d4" strokeWidth="2" fill="#06b6d4" fillOpacity="0.1"/>
-                <circle cx="16" cy="14" r="3" fill="#06b6d4"/>
-                <path d="M13 20h6v2h-6z" fill="#06b6d4"/>
+                <path d="M16 5L7 9v7c0 6 4 11 9 12 5-1 9-6 9-12V9L16 5z" stroke="#06b6d4" strokeWidth="2" fill="#06b6d4" fillOpacity="0.1"/>
+                <ellipse cx="16" cy="14" rx="3" ry="4" fill="#06b6d4"/>
+                <path d="M14 12c-2-1-3-3-3-3s2 1 4 2M18 12c2-1 3-3 3-3s-2 1-4 2" stroke="#06b6d4" strokeWidth="1.5" fill="none"/>
+                <path d="M14 16c-2 1-3 3-3 3s2-1 4-2M18 16c2 1 3 3 3 3s-2-1-4-2" stroke="#06b6d4" strokeWidth="1.5" fill="none"/>
+                <line x1="13" y1="14" x2="19" y2="14" stroke="#0f172a" strokeWidth="1"/>
+                <line x1="13" y1="16" x2="19" y2="16" stroke="#0f172a" strokeWidth="1"/>
               </svg>
               <span className="text-lg font-semibold text-white tracking-tight">OWASP Playground</span>
             </Link>
@@ -274,7 +277,7 @@ export default function IndexPage() {
               Cloudflare WAF
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/vnikhilbuddhavarapu/owasp-playground"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
